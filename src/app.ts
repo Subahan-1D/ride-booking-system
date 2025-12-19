@@ -2,11 +2,14 @@ import express, { type Request, type Response } from "express";
 
 const app = express();
 import cors from "cors";
+import { router } from "./app/routes";
 
 
 app.use(express.json());
 app.use(cors())
 
+ 
+app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("Ride Booking System Backend is running");
