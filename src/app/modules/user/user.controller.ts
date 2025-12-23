@@ -36,12 +36,13 @@ const createUser = catchAsync(
 const getAllUsers = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req: Request, res: Response, next: NextFunction) => {
-    const users = await UserService.getAllUsers();
+    const result = await UserService.getAllUsers();
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "All Users retrieved successfully",
-      data: users,
+      data: result.data,
+      meta: result.meta,
     });
   }
 );
