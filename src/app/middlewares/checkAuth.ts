@@ -55,14 +55,16 @@ import { JwtPayload } from "jsonwebtoken";
 //       next(error);
 //     }
 //   };
-
+import httpStatus from "http-status-codes";
+import { User } from "../modules/user/user.model";
+import { IsActive } from "../modules/user/user.interface";
 export const checkAuth =
   (...authRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessToken = req.headers.authorization;
       if (!accessToken) {
-        throw new AppError(403, "You are not authorized");
+        throw new AppError(403, "No Token Received");
       }
       const verifiedToken = verifyToken(
         accessToken,
@@ -76,6 +78,26 @@ export const checkAuth =
 
       if (!authRoles.includes(verifiedToken.role)) {
         throw new AppError(403, "You are not permitted to view this route");
+      }
+
+      const isUserExists = await User.findOne({
+        email: verifiedToken.email,
+      });
+      if (!isUserExists) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
+      }
+
+      if (
+        isUserExists.isActive === IsActive.BLOCKED ||
+        isUserExists.isActive === IsActive.SUSPENDED
+      ) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          `User is ${isUserExists.isActive}`
+        );
+      }
+      if (isUserExists.isDeleted) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is deleted");
       }
 
       req.user = verifiedToken;
