@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import express, { NextFunction, type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
-const app = express();
+
 import cors from "cors";
 import { router } from "./app/routes";
 import { envVars } from "./app/config/env";
@@ -10,10 +10,11 @@ import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 import passport from "passport";
 import expressSession from "express-session";
-
+import "./app/config/passport";
+const app = express();
 app.use(
   expressSession({
-    secret: "your secret",
+    secret: envVars.EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   })
